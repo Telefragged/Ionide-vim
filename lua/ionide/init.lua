@@ -58,11 +58,15 @@ M.manager = nil
 local function autostart_if_needed(m, config)
   local auto_setup = (vim.g['fsharp#lsp_auto_setup'] == 1)
   if auto_setup and not (config.autostart == false) then
-    m.autostart()  
+    m.autostart()
   end
 end
 
+local is_setup = false
+
 local function delegate_to_lspconfig(config)
+  if is_setup then return end
+  is_setup = true
   local lspconfig = require('lspconfig')
   local configs = require('lspconfig.configs')
   if not (configs['ionide']) then
@@ -178,7 +182,7 @@ local function create_manager(config)
     new_config.root_dir = _root_dir
     return new_config
   end
-  
+
   local manager = util.server_per_root_dir_manager(function(_root_dir) return make_config(_root_dir) end)
   function manager.try_add(bufnr)
     bufnr = bufnr or api.nvim_get_current_buf()
